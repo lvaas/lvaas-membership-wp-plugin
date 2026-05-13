@@ -21,6 +21,24 @@ define( 'LVAAS_MEMBERSHIP_PLUGIN_FILE', __FILE__ );
 define( 'LVAAS_MEMBERSHIP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LVAAS_MEMBERSHIP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
+if ( is_readable( LVAAS_MEMBERSHIP_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+	require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'vendor/autoload.php';
+}
+
+require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/interface-user-source.php';
+require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-member.php';
+require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-member-validator.php';
+require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-config.php';
+require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-gdatabase.php';
+
+function lvaas_membership_source(): User_Source_Interface {
+	static $instance = null;
+	if ( $instance === null ) {
+		$instance = apply_filters( 'lvaas_user_source', new LVAAS_GDatabase() );
+	}
+	return $instance;
+}
+
 register_activation_hook( __FILE__, 'lvaas_membership_activate' );
 register_deactivation_hook( __FILE__, 'lvaas_membership_deactivate' );
 
