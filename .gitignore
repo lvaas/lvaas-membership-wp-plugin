@@ -1,0 +1,27 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# PHP / Composer
+/vendor/
+composer.phar
+
+# Node / build
+/node_modules/
+/build/
+/dist/
+npm-debug.log*
+yarn-error.log
+
+# WordPress / runtime
+*.log
+.env
+.env.local
+
+# Local dev artifacts
+*.bak
+*.orig
