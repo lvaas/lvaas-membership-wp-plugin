@@ -30,6 +30,7 @@ require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-member.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-member-validator.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-config.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-gdatabase.php';
+require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-settings.php';
 
 function lvaas_membership_source(): User_Source_Interface {
 	static $instance = null;
@@ -37,6 +38,10 @@ function lvaas_membership_source(): User_Source_Interface {
 		$instance = apply_filters( 'lvaas_user_source', new LVAAS_GDatabase() );
 	}
 	return $instance;
+}
+
+if ( is_admin() ) {
+	( new LVAAS_Admin_Settings() )->register();
 }
 
 register_activation_hook( __FILE__, 'lvaas_membership_activate' );
