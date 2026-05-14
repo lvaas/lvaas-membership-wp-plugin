@@ -4,14 +4,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class LVAAS_Admin_Add_Users {
-	public const PAGE_SLUG     = 'lvaas-add-users';
-	public const CAPABILITY    = 'create_users';
-	public const NONCE_ACTION  = 'lvaas_add_users';
-	public const FLASH_PREFIX  = 'lvaas_add_users_flash_';
+	public const PAGE_SLUG          = 'lvaas-add-users';
+	public const CAPABILITY         = 'create_users';
+	public const NONCE_ACTION       = 'lvaas_add_users';
+	public const NONCE_ACTION_INTRO = 'lvaas_save_invite_intro';
+	public const FLASH_PREFIX       = 'lvaas_add_users_flash_';
 
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
-		add_action( 'admin_post_lvaas_add_users', array( $this, 'handle_submit' ) );
+		add_action( 'admin_post_lvaas_add_users',         array( $this, 'handle_submit' ) );
+		add_action( 'admin_post_lvaas_save_invite_intro', array( $this, 'handle_save_intro' ) );
 		add_filter( 'wp_new_user_notification_email',       array( $this, 'html_user_notification' ),  10, 3 );
 		add_filter( 'wp_new_user_notification_email_admin', array( $this, 'html_admin_notification' ), 10, 3 );
 	}
@@ -30,10 +32,7 @@ final class LVAAS_Admin_Add_Users {
 			return $email;
 		}
 		$login_url = wp_login_url();
-		$first     = trim( (string) $user->first_name );
-		$greeting  = $first !== ''
-			? sprintf( __( 'Hi %s,', 'lvaas-membership' ), $first )
-			: __( 'Hello,', 'lvaas-membership' );
+		$intro     = LVAAS_Config::get_invite_intro();
 
 		ob_start();
 		?>
@@ -41,16 +40,9 @@ final class LVAAS_Admin_Add_Users {
 <html lang="en">
 <body style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1d2327;background:#f6f7f7;margin:0;padding:24px;">
 	<div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #dcdcde;border-radius:6px;padding:24px;">
-		<p style="margin:0 0 1em;"><?php echo esc_html( $greeting ); ?></p>
-		<p style="margin:0 0 1em;">
-			<?php
-			printf(
-				/* translators: %s: blog name */
-				esc_html__( 'An LVAAS account has been created for you on %s.', 'lvaas-membership' ),
-				'<strong>' . esc_html( $blogname ) . '</strong>'
-			);
-			?>
-		</p>
+		<?php if ( $intro !== '' ) : ?>
+			<p style="margin:0 0 1em;font-size:1.05em;"><?php echo nl2br( esc_html( $intro ) ); ?></p>
+		<?php endif; ?>
 		<p style="margin:0 0 1em;">
 			<strong><?php esc_html_e( 'Username:', 'lvaas-membership' ); ?></strong>
 			<code style="background:#f0f0f1;padding:2px 6px;border-radius:3px;"><?php echo esc_html( $user->user_login ); ?></code>
@@ -183,6 +175,18 @@ final class LVAAS_Admin_Add_Users {
 			<?php if ( $flash ) : ?>
 				<div class="notice notice-<?php echo esc_attr( $flash['type'] ); ?> is-dismissible"><p><?php echo wp_kses_post( $flash['message'] ); ?></p></div>
 			<?php endif; ?>
+
+			<h2><?php esc_html_e( 'Invitation message', 'lvaas-membership' ); ?></h2>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<?php wp_nonce_field( self::NONCE_ACTION_INTRO ); ?>
+				<input type="hidden" name="action" value="lvaas_save_invite_intro">
+				<p class="description"><?php esc_html_e( 'First line of the invitation email. Plain text; line breaks are preserved.', 'lvaas-membership' ); ?></p>
+				<textarea name="lvaas_invite_intro" rows="3" class="large-text" style="font-family:inherit;"><?php echo esc_textarea( LVAAS_Config::get_invite_intro() ); ?></textarea>
+				<?php submit_button( __( 'Save message', 'lvaas-membership' ), 'secondary', 'submit', false ); ?>
+			</form>
+
+			<hr>
+
 			<p>
 				<?php
 				printf(
@@ -249,6 +253,19 @@ final class LVAAS_Admin_Add_Users {
 			</script>
 		</div>
 		<?php
+	}
+
+	public function handle_save_intro(): void {
+		check_admin_referer( self::NONCE_ACTION_INTRO );
+		if ( ! current_user_can( self::CAPABILITY ) ) {
+			wp_die( esc_html__( 'Insufficient privileges.', 'lvaas-membership' ) );
+		}
+		$text = isset( $_POST['lvaas_invite_intro'] )
+			? sanitize_textarea_field( wp_unslash( $_POST['lvaas_invite_intro'] ) )
+			: '';
+		LVAAS_Config::set_invite_intro( $text );
+		$this->set_flash( 'success', __( 'Invitation message saved.', 'lvaas-membership' ) );
+		$this->redirect_back();
 	}
 
 	public function handle_submit(): void {

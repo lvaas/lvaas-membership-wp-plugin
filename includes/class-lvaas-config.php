@@ -8,8 +8,10 @@ final class LVAAS_Config {
 	public const OPT_SERVICE_ACCOUNT  = 'lvaas_service_account';
 	public const OPT_PROVISIONED_ROLE = 'lvaas_provisioned_role';
 	public const OPT_STALE_TTL        = 'lvaas_stale_ttl_seconds';
+	public const OPT_INVITE_INTRO     = 'lvaas_invite_intro';
 
 	public const DEFAULT_PROVISIONED_ROLE = 'subscriber';
+	public const DEFAULT_INVITE_INTRO     = 'Welcome to LVAAS! An account has been created for you on our website.';
 
 	public static function get_sheet_id(): string {
 		return (string) get_option( self::OPT_SHEET_ID, '' );
@@ -68,6 +70,18 @@ final class LVAAS_Config {
 
 	public static function set_provisioned_role( string $role ): bool {
 		return update_option( self::OPT_PROVISIONED_ROLE, $role );
+	}
+
+	public static function get_invite_intro(): string {
+		$val = get_option( self::OPT_INVITE_INTRO, null );
+		if ( $val === null || $val === false ) {
+			return self::DEFAULT_INVITE_INTRO;
+		}
+		return (string) $val;
+	}
+
+	public static function set_invite_intro( string $text ): bool {
+		return update_option( self::OPT_INVITE_INTRO, $text );
 	}
 
 	public static function get_stale_ttl_seconds(): int {
