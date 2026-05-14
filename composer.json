@@ -1,5 +1,5 @@
 {
-    "name": "lvaas/lvaas-membership-plugin",
+    "name": "lvaas/lvaas-membership-wp-plugin",
     "description": "LVAAS WordPress membership plugin",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",

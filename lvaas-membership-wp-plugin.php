@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       LVAAS Membership
- * Plugin URI:        https://github.com/lvaas/lvaas-membership-plugin
+ * Plugin URI:        https://github.com/lvaas/lvaas-membership-wp-plugin
  * Description:       Manages WordPress user access based on the LVAAS external membership database (Google Sheet → pluggable source of truth).
  * Version:           0.1.0
  * Requires at least: 6.0
