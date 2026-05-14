@@ -32,7 +32,7 @@ final class LVAAS_Admin_Add_Users {
 			return $email;
 		}
 		$login_url = wp_login_url();
-		$intro     = LVAAS_Config::get_invite_intro();
+		$intro     = $this->expand_intro_placeholders( LVAAS_Config::get_invite_intro(), $user );
 
 		ob_start();
 		?>
@@ -122,6 +122,19 @@ final class LVAAS_Admin_Add_Users {
 		return $email;
 	}
 
+	private function expand_intro_placeholders( string $intro, WP_User $user ): string {
+		$first = trim( (string) $user->first_name );
+		$last  = trim( (string) $user->last_name );
+		$out   = strtr( $intro, array(
+			'{first_name}' => $first !== '' ? $first : __( 'there', 'lvaas-membership' ),
+			'{last_name}'  => $last,
+		) );
+		// Tidy up spacing left behind when a placeholder resolves to an empty string.
+		$out = preg_replace( '/[ \t]{2,}/',          ' ', $out );
+		$out = preg_replace( '/[ \t]+([!?,.;:])/',  '$1', $out );
+		return $out;
+	}
+
 	private function extract_reset_url( string $message ): string {
 		if ( preg_match( '#https?://[^\s<>"\']+wp-login\.php\?[^\s<>"\']*action=rp[^\s<>"\']*#', $message, $m ) ) {
 			return $m[0];
@@ -180,7 +193,14 @@ final class LVAAS_Admin_Add_Users {
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<?php wp_nonce_field( self::NONCE_ACTION_INTRO ); ?>
 				<input type="hidden" name="action" value="lvaas_save_invite_intro">
-				<p class="description"><?php esc_html_e( 'First line of the invitation email. Plain text; line breaks are preserved.', 'lvaas-membership' ); ?></p>
+				<p class="description">
+					<?php
+					echo wp_kses(
+						__( 'First line of the invitation email. Use <code>{first_name}</code> and <code>{last_name}</code> to insert the recipient&#8217;s name. Plain text otherwise; line breaks are preserved.', 'lvaas-membership' ),
+						array( 'code' => array() )
+					);
+					?>
+				</p>
 				<textarea name="lvaas_invite_intro" rows="3" class="large-text" style="font-family:inherit;"><?php echo esc_textarea( LVAAS_Config::get_invite_intro() ); ?></textarea>
 				<?php submit_button( __( 'Save message', 'lvaas-membership' ), 'secondary', 'submit', false ); ?>
 			</form>

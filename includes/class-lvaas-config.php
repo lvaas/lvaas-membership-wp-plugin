@@ -11,7 +11,7 @@ final class LVAAS_Config {
 	public const OPT_INVITE_INTRO     = 'lvaas_invite_intro';
 
 	public const DEFAULT_PROVISIONED_ROLE = 'subscriber';
-	public const DEFAULT_INVITE_INTRO     = 'Welcome to LVAAS! An account has been created for you on our website.';
+	public const DEFAULT_INVITE_INTRO     = 'Hi {first_name} {last_name}! Welcome to LVAAS. An account has been created for you on our website.';
 
 	public static function get_sheet_id(): string {
 		return (string) get_option( self::OPT_SHEET_ID, '' );
