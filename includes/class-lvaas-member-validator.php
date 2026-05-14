@@ -4,10 +4,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class LVAAS_Member_Validator {
-	public const VALID_CAT   = array( 'Full', 'Assoc' );
-	public const SILENT_CAT  = array( 'Prospect' );
-	public const VALID_TYPE  = array( 'R', 'L', 'H', 'U', 'J', 'F1', 'F2', 'FD', 'FJ' );
-	public const SILENT_TYPE = array( 'P' );
+	public const VALID_CAT   = array( 'R', 'L', 'H', 'U', 'J', 'F1', 'F2', 'FD', 'FJ' );
+	public const SILENT_CAT  = array( 'P' );
+	public const VALID_TYPE  = array( 'Full', 'Assoc' );
+	public const SILENT_TYPE = array( 'Prospect' );
 
 	/**
 	 * @param array<int, array<string, string>> $rows  Assoc rows keyed by header, plus `__sheet_row`.

@@ -27,8 +27,8 @@ final class LVAAS_Member {
 			'FD' => '(Family)',
 			'FJ' => '(Family)',
 		);
-		$suffix = $suffix_map[ $this->mbr_type ] ?? '';
-		return $suffix === '' ? $this->mbr_cat : $this->mbr_cat . ' ' . $suffix;
+		$suffix = $suffix_map[ $this->mbr_cat ] ?? '';
+		return $suffix === '' ? $this->mbr_type : $this->mbr_type . ' ' . $suffix;
 	}
 
 	public static function normalize_email( string $email ): string {

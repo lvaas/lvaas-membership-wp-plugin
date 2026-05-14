@@ -12,7 +12,7 @@ A WordPress plugin to manage user access based on an external membership databas
   * Content of relevant columns of entire db may be kept in browser tab  
   * Includes a **CSV export** button that downloads the current (filtered) view.  
   * view should include last name, first name, email, phone, and status  
-    * status is formed as `mbr_cat` + (space + suffix) where the suffix is derived from `mbr_type` as follows. If the suffix is empty, the space is also omitted (e.g. `"Full"`, `"Full (Life)"`, `"Assoc (Student)"`):  
+    * status is formed as `mbr_type` + (space + suffix) where the suffix is derived from `mbr_cat` as follows. If the suffix is empty, the space is also omitted (e.g. `"Full"`, `"Full (Life)"`, `"Assoc (Student)"`):  
       * ‘R’ → empty  
       * ‘L’ → (Life)  
       * ‘H’ → (Honorary)  
@@ -56,12 +56,12 @@ A WordPress plugin to manage user access based on an external membership databas
   * `first`  
   * `last`  
   * `mbr_cat`  
-    * Valid member values: ‘Full’, ‘Assoc’.  
-    * ‘Prospect’ is a recognized non-member value and silently excludes the row (intentional, not an error).  
-    * Any other value excludes the row as invalid (see validation policy below).  
-  * `mbr_type`  
     * Valid member values: ‘R’, ‘L’, ‘H’, ‘U’, ‘J’, ‘F1’, ‘F2’, ‘FD’, ‘FJ’.  
     * ‘P’ is a recognized non-member value and silently excludes the row (intentional, not an error).  
+    * Any other value excludes the row as invalid (see validation policy below).  
+  * `mbr_type`  
+    * Valid member values: ‘Full’, ‘Assoc’.  
+    * ‘Prospect’ is a recognized non-member value and silently excludes the row (intentional, not an error).  
     * Any other value excludes the row as invalid (see validation policy below).  
   * `phone`  
   * `codes` — reserved for future use; read from the sheet and stored on the in-memory object but not yet consumed by any feature.  
