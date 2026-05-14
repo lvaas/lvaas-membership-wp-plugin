@@ -12,6 +12,138 @@ final class LVAAS_Admin_Add_Users {
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
 		add_action( 'admin_post_lvaas_add_users', array( $this, 'handle_submit' ) );
+		add_filter( 'wp_new_user_notification_email',       array( $this, 'html_user_notification' ),  10, 3 );
+		add_filter( 'wp_new_user_notification_email_admin', array( $this, 'html_admin_notification' ), 10, 3 );
+	}
+
+	/**
+	 * Rewrite the new-user "set your password" email as HTML for LVAAS-provisioned users.
+	 *
+	 * @param array{to:string, subject:string, message:string, headers:string|string[]} $email
+	 */
+	public function html_user_notification( array $email, WP_User $user, string $blogname ): array {
+		if ( ! get_user_meta( $user->ID, LVAAS_MEMBERSHIP_USER_META_EMAIL, true ) ) {
+			return $email;
+		}
+		$reset_url = $this->extract_reset_url( (string) $email['message'] );
+		if ( $reset_url === '' ) {
+			return $email;
+		}
+		$login_url = wp_login_url();
+		$first     = trim( (string) $user->first_name );
+		$greeting  = $first !== ''
+			? sprintf( __( 'Hi %s,', 'lvaas-membership' ), $first )
+			: __( 'Hello,', 'lvaas-membership' );
+
+		ob_start();
+		?>
+<!DOCTYPE html>
+<html lang="en">
+<body style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1d2327;background:#f6f7f7;margin:0;padding:24px;">
+	<div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #dcdcde;border-radius:6px;padding:24px;">
+		<p style="margin:0 0 1em;"><?php echo esc_html( $greeting ); ?></p>
+		<p style="margin:0 0 1em;">
+			<?php
+			printf(
+				/* translators: %s: blog name */
+				esc_html__( 'An LVAAS account has been created for you on %s.', 'lvaas-membership' ),
+				'<strong>' . esc_html( $blogname ) . '</strong>'
+			);
+			?>
+		</p>
+		<p style="margin:0 0 1em;">
+			<strong><?php esc_html_e( 'Username:', 'lvaas-membership' ); ?></strong>
+			<code style="background:#f0f0f1;padding:2px 6px;border-radius:3px;"><?php echo esc_html( $user->user_login ); ?></code>
+		</p>
+		<p style="margin:0 0 1em;"><?php esc_html_e( 'Click the button below to set your password and sign in:', 'lvaas-membership' ); ?></p>
+		<p style="margin:1.5em 0;text-align:center;">
+			<a href="<?php echo esc_url( $reset_url ); ?>"
+			   style="background:#2271b1;color:#fff;padding:.7em 1.4em;text-decoration:none;border-radius:4px;display:inline-block;font-weight:600;">
+				<?php esc_html_e( 'Set your password', 'lvaas-membership' ); ?>
+			</a>
+		</p>
+		<p style="margin:0 0 1em;color:#646970;font-size:.92em;">
+			<?php esc_html_e( 'If the button does not work, copy and paste this link into your browser:', 'lvaas-membership' ); ?>
+			<br>
+			<a href="<?php echo esc_url( $reset_url ); ?>" style="word-break:break-all;"><?php echo esc_html( $reset_url ); ?></a>
+		</p>
+		<p style="margin:0 0 1em;">
+			<?php esc_html_e( 'After setting your password, sign in here:', 'lvaas-membership' ); ?>
+			<a href="<?php echo esc_url( $login_url ); ?>"><?php echo esc_html( $login_url ); ?></a>
+		</p>
+		<p style="margin-top:2em;color:#8c8f94;font-size:.85em;border-top:1px solid #f0f0f1;padding-top:1em;">
+			<?php esc_html_e( 'If you weren\'t expecting this message, you can safely ignore it.', 'lvaas-membership' ); ?>
+		</p>
+	</div>
+</body>
+</html>
+		<?php
+		$email['message'] = (string) ob_get_clean();
+		$email['headers'] = $this->merge_html_header( $email['headers'] );
+		return $email;
+	}
+
+	/**
+	 * Rewrite the admin "new user" notification as HTML for LVAAS-provisioned users.
+	 *
+	 * @param array{to:string, subject:string, message:string, headers:string|string[]} $email
+	 */
+	public function html_admin_notification( array $email, WP_User $user, string $blogname ): array {
+		if ( ! get_user_meta( $user->ID, LVAAS_MEMBERSHIP_USER_META_EMAIL, true ) ) {
+			return $email;
+		}
+		$user_admin_url = admin_url( 'user-edit.php?user_id=' . (int) $user->ID );
+		$mailto         = 'mailto:' . rawurlencode( $user->user_email );
+
+		ob_start();
+		?>
+<!DOCTYPE html>
+<html lang="en">
+<body style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1d2327;background:#f6f7f7;margin:0;padding:24px;">
+	<div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #dcdcde;border-radius:6px;padding:24px;">
+		<p style="margin:0 0 1em;">
+			<?php
+			printf(
+				/* translators: %s: blog name */
+				esc_html__( 'A new LVAAS user has been provisioned on %s:', 'lvaas-membership' ),
+				'<strong>' . esc_html( $blogname ) . '</strong>'
+			);
+			?>
+		</p>
+		<table style="border-collapse:collapse;margin:0 0 1em;">
+			<tr><td style="padding:4px 12px 4px 0;color:#646970;"><?php esc_html_e( 'Username',     'lvaas-membership' ); ?></td><td><code style="background:#f0f0f1;padding:2px 6px;border-radius:3px;"><?php echo esc_html( $user->user_login ); ?></code></td></tr>
+			<tr><td style="padding:4px 12px 4px 0;color:#646970;"><?php esc_html_e( 'Email',        'lvaas-membership' ); ?></td><td><a href="<?php echo esc_url( $mailto ); ?>"><?php echo esc_html( $user->user_email ); ?></a></td></tr>
+			<tr><td style="padding:4px 12px 4px 0;color:#646970;"><?php esc_html_e( 'Display name', 'lvaas-membership' ); ?></td><td><?php echo esc_html( $user->display_name ); ?></td></tr>
+		</table>
+		<p style="margin:1.5em 0 0;">
+			<a href="<?php echo esc_url( $user_admin_url ); ?>"
+			   style="background:#2271b1;color:#fff;padding:.5em 1em;text-decoration:none;border-radius:4px;display:inline-block;">
+				<?php esc_html_e( 'View user in WP admin', 'lvaas-membership' ); ?> &rarr;
+			</a>
+		</p>
+	</div>
+</body>
+</html>
+		<?php
+		$email['message'] = (string) ob_get_clean();
+		$email['headers'] = $this->merge_html_header( $email['headers'] );
+		return $email;
+	}
+
+	private function extract_reset_url( string $message ): string {
+		if ( preg_match( '#https?://[^\s<>"\']+wp-login\.php\?[^\s<>"\']*action=rp[^\s<>"\']*#', $message, $m ) ) {
+			return $m[0];
+		}
+		return '';
+	}
+
+	/** @param string|string[] $headers */
+	private function merge_html_header( $headers ): string {
+		$existing = is_array( $headers ) ? implode( "\r\n", $headers ) : (string) $headers;
+		if ( stripos( $existing, 'content-type:' ) !== false ) {
+			return $existing;
+		}
+		return ( $existing !== '' ? rtrim( $existing, "\r\n" ) . "\r\n" : '' ) . 'Content-Type: text/html; charset=UTF-8';
 	}
 
 	public function register_menu(): void {
