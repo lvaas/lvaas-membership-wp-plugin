@@ -15,12 +15,13 @@ final class LVAAS_Admin_Members {
 
 	public function register_menu(): void {
 		add_submenu_page(
-			LVAAS_Admin_Settings::MENU_SLUG,
+			LVAAS_MEMBERSHIP_MENU_SLUG,
 			'LVAAS Members',
 			'Members',
 			self::CAPABILITY,
 			self::PAGE_SLUG,
-			array( $this, 'render' )
+			array( $this, 'render' ),
+			10
 		);
 	}
 

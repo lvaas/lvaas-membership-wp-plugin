@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class LVAAS_Admin_Settings {
-	public const MENU_SLUG            = 'lvaas-membership';
+	public const MENU_SLUG            = LVAAS_MEMBERSHIP_MENU_SLUG;
 	public const PAGE_SLUG            = 'lvaas-settings';
 	public const CAPABILITY           = 'manage_options';
 	public const NONCE_ACTION_SAVE    = 'lvaas_save_settings';
@@ -21,24 +21,15 @@ final class LVAAS_Admin_Settings {
 	}
 
 	public function register_menu(): void {
-		add_menu_page(
-			'LVAAS Membership',
-			'LVAAS',
-			self::CAPABILITY,
-			self::MENU_SLUG,
-			array( $this, 'render_settings' ),
-			'dashicons-id-alt',
-			70
-		);
 		add_submenu_page(
 			self::MENU_SLUG,
 			'LVAAS Settings',
 			'Settings',
 			self::CAPABILITY,
 			self::PAGE_SLUG,
-			array( $this, 'render_settings' )
+			array( $this, 'render_settings' ),
+			50
 		);
-		remove_submenu_page( self::MENU_SLUG, self::MENU_SLUG );
 	}
 
 	public function render_settings(): void {
