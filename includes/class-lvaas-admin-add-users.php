@@ -4,16 +4,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class LVAAS_Admin_Add_Users {
-	public const PAGE_SLUG          = 'lvaas-add-users';
-	public const CAPABILITY         = 'create_users';
-	public const NONCE_ACTION       = 'lvaas_add_users';
-	public const NONCE_ACTION_INTRO = 'lvaas_save_invite_intro';
-	public const FLASH_PREFIX       = 'lvaas_add_users_flash_';
+	public const PAGE_SLUG    = 'lvaas-add-users';
+	public const CAPABILITY   = 'create_users';
+	public const NONCE_ACTION = 'lvaas_add_users';
+	public const FLASH_PREFIX = 'lvaas_add_users_flash_';
+
+	/** Set by handle_submit for the current batch, read by html_user_notification. Not persisted. */
+	private string $current_intro = '';
 
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
-		add_action( 'admin_post_lvaas_add_users',         array( $this, 'handle_submit' ) );
-		add_action( 'admin_post_lvaas_save_invite_intro', array( $this, 'handle_save_intro' ) );
+		add_action( 'admin_post_lvaas_add_users', array( $this, 'handle_submit' ) );
 		add_filter( 'wp_new_user_notification_email',       array( $this, 'html_user_notification' ),  10, 3 );
 		add_filter( 'wp_new_user_notification_email_admin', array( $this, 'html_admin_notification' ), 10, 3 );
 	}
@@ -32,7 +33,8 @@ final class LVAAS_Admin_Add_Users {
 			return $email;
 		}
 		$login_url = wp_login_url();
-		$intro     = $this->expand_intro_placeholders( LVAAS_Config::get_invite_intro(), $user );
+		$template  = $this->current_intro !== '' ? $this->current_intro : LVAAS_Config::DEFAULT_INVITE_INTRO;
+		$intro     = $this->expand_intro_placeholders( $template, $user );
 
 		ob_start();
 		?>
@@ -189,24 +191,6 @@ final class LVAAS_Admin_Add_Users {
 				<div class="notice notice-<?php echo esc_attr( $flash['type'] ); ?> is-dismissible"><p><?php echo wp_kses_post( $flash['message'] ); ?></p></div>
 			<?php endif; ?>
 
-			<h2><?php esc_html_e( 'Invitation message', 'lvaas-membership' ); ?></h2>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-				<?php wp_nonce_field( self::NONCE_ACTION_INTRO ); ?>
-				<input type="hidden" name="action" value="lvaas_save_invite_intro">
-				<p class="description">
-					<?php
-					echo wp_kses(
-						__( 'First line of the invitation email. Use <code>{first_name}</code> and <code>{last_name}</code> to insert the recipient&#8217;s name. Plain text otherwise; line breaks are preserved.', 'lvaas-membership' ),
-						array( 'code' => array() )
-					);
-					?>
-				</p>
-				<textarea name="lvaas_invite_intro" rows="3" class="large-text" style="font-family:inherit;"><?php echo esc_textarea( LVAAS_Config::get_invite_intro() ); ?></textarea>
-				<?php submit_button( __( 'Save message', 'lvaas-membership' ), 'secondary', 'submit', false ); ?>
-			</form>
-
-			<hr>
-
 			<p>
 				<?php
 				printf(
@@ -259,6 +243,17 @@ final class LVAAS_Admin_Add_Users {
 					</tbody>
 				</table>
 
+				<h2 style="margin-top:1.5em;"><?php esc_html_e( 'Invitation message', 'lvaas-membership' ); ?></h2>
+				<p class="description">
+					<?php
+					echo wp_kses(
+						__( 'First line of the invitation email. Use <code>{first_name}</code> and <code>{last_name}</code> to insert the recipient&#8217;s name. Plain text otherwise; line breaks are preserved. Edits are not saved between sessions.', 'lvaas-membership' ),
+						array( 'code' => array() )
+					);
+					?>
+				</p>
+				<textarea name="lvaas_invite_intro" rows="3" class="large-text" style="font-family:inherit;"><?php echo esc_textarea( LVAAS_Config::DEFAULT_INVITE_INTRO ); ?></textarea>
+
 				<p class="description" style="margin-top:1em;">
 					<?php esc_html_e( 'Each selected member will receive a WP "new user" email with a password-set link. The admin will receive a notification as well.', 'lvaas-membership' ); ?>
 				</p>
@@ -275,24 +270,15 @@ final class LVAAS_Admin_Add_Users {
 		<?php
 	}
 
-	public function handle_save_intro(): void {
-		check_admin_referer( self::NONCE_ACTION_INTRO );
-		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'Insufficient privileges.', 'lvaas-membership' ) );
-		}
-		$text = isset( $_POST['lvaas_invite_intro'] )
-			? sanitize_textarea_field( wp_unslash( $_POST['lvaas_invite_intro'] ) )
-			: '';
-		LVAAS_Config::set_invite_intro( $text );
-		$this->set_flash( 'success', __( 'Invitation message saved.', 'lvaas-membership' ) );
-		$this->redirect_back();
-	}
-
 	public function handle_submit(): void {
 		check_admin_referer( self::NONCE_ACTION );
 		if ( ! current_user_can( self::CAPABILITY ) ) {
 			wp_die( esc_html__( 'Insufficient privileges.', 'lvaas-membership' ) );
 		}
+
+		$this->current_intro = isset( $_POST['lvaas_invite_intro'] )
+			? sanitize_textarea_field( wp_unslash( $_POST['lvaas_invite_intro'] ) )
+			: '';
 
 		$selected = isset( $_POST['lvaas_emails'] ) && is_array( $_POST['lvaas_emails'] )
 			? array_map( 'sanitize_email', wp_unslash( $_POST['lvaas_emails'] ) )
