@@ -123,6 +123,29 @@ final class LVAAS_Admin_Settings {
 							<p class="description"><?php esc_html_e( 'When the Google API is unreachable, serve last good data as stale for this many hours. Default: 24.', 'lvaas-membership' ); ?></p>
 						</td>
 					</tr>
+
+					<?php if ( LVAAS_Config::simple_restrict_available() ) :
+						$sr_terms   = get_terms( array(
+							'taxonomy'   => LVAAS_Config::SR_TAXONOMY,
+							'hide_empty' => false,
+						) );
+						$current_sr = LVAAS_Config::get_simple_restrict_permission();
+					?>
+					<tr>
+						<th scope="row"><label for="lvaas_simple_restrict_permission"><?php esc_html_e( 'Simple Restrict Permission', 'lvaas-membership' ); ?></label></th>
+						<td>
+							<select id="lvaas_simple_restrict_permission" name="lvaas_simple_restrict_permission">
+								<option value=""><?php esc_html_e( '— None —', 'lvaas-membership' ); ?></option>
+								<?php if ( ! is_wp_error( $sr_terms ) ) : foreach ( $sr_terms as $sr_term ) : ?>
+									<option value="<?php echo esc_attr( $sr_term->slug ); ?>" <?php selected( $current_sr, $sr_term->slug ); ?>>
+										<?php echo esc_html( $sr_term->name ); ?>
+									</option>
+								<?php endforeach; endif; ?>
+							</select>
+							<p class="description"><?php esc_html_e( 'Auto-granted to each user invited via Add Users. Existing users are not affected.', 'lvaas-membership' ); ?></p>
+						</td>
+					</tr>
+					<?php endif; ?>
 				</table>
 
 				<?php submit_button( __( 'Save Settings', 'lvaas-membership' ) ); ?>
@@ -297,6 +320,19 @@ final class LVAAS_Admin_Settings {
 			$hours = max( 0, (int) $_POST['lvaas_stale_ttl_hours'] );
 			update_option( LVAAS_Config::OPT_STALE_TTL, $hours * HOUR_IN_SECONDS );
 			$changes[] = sprintf( __( 'Stale TTL set to %d hour(s).', 'lvaas-membership' ), $hours );
+		}
+
+		if ( isset( $_POST['lvaas_simple_restrict_permission'] ) && LVAAS_Config::simple_restrict_available() ) {
+			$new_sr = sanitize_text_field( wp_unslash( $_POST['lvaas_simple_restrict_permission'] ) );
+			$old_sr = LVAAS_Config::get_simple_restrict_permission();
+			if ( $new_sr !== '' && ! get_term_by( 'slug', $new_sr, LVAAS_Config::SR_TAXONOMY ) ) {
+				$errors[] = __( 'Invalid Simple Restrict permission.', 'lvaas-membership' );
+			} elseif ( $new_sr !== $old_sr ) {
+				LVAAS_Config::set_simple_restrict_permission( $new_sr );
+				$changes[] = $new_sr === ''
+					? __( 'Simple Restrict permission cleared.', 'lvaas-membership' )
+					: sprintf( __( 'Simple Restrict permission set to %s.', 'lvaas-membership' ), $new_sr );
+			}
 		}
 
 		if ( ! empty( $errors ) ) {

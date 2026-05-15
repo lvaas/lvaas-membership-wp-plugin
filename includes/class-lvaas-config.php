@@ -8,6 +8,10 @@ final class LVAAS_Config {
 	public const OPT_SERVICE_ACCOUNT  = 'lvaas_service_account';
 	public const OPT_PROVISIONED_ROLE = 'lvaas_provisioned_role';
 	public const OPT_STALE_TTL        = 'lvaas_stale_ttl_seconds';
+	public const OPT_SR_PERMISSION    = 'lvaas_simple_restrict_permission';
+
+	public const SR_TAXONOMY    = 'simple-restrict-permission';
+	public const SR_META_PREFIX = 'simple-restrict-';
 
 	public const DEFAULT_PROVISIONED_ROLE = 'subscriber';
 	public const DEFAULT_INVITE_INTRO     = 'Hi {first_name} {last_name}! Welcome to LVAAS. An account has been created for you on our website.';
@@ -69,6 +73,18 @@ final class LVAAS_Config {
 
 	public static function set_provisioned_role( string $role ): bool {
 		return update_option( self::OPT_PROVISIONED_ROLE, $role );
+	}
+
+	public static function simple_restrict_available(): bool {
+		return taxonomy_exists( self::SR_TAXONOMY );
+	}
+
+	public static function get_simple_restrict_permission(): string {
+		return (string) get_option( self::OPT_SR_PERMISSION, '' );
+	}
+
+	public static function set_simple_restrict_permission( string $slug ): bool {
+		return update_option( self::OPT_SR_PERMISSION, $slug );
 	}
 
 	public static function get_stale_ttl_seconds(): int {

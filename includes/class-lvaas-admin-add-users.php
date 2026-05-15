@@ -368,6 +368,13 @@ final class LVAAS_Admin_Add_Users {
 			'role'         => $role,
 		) );
 		update_user_meta( $user_id, LVAAS_MEMBERSHIP_USER_META_EMAIL, $m->email );
+
+		$sr_slug = LVAAS_Config::get_simple_restrict_permission();
+		if ( $sr_slug !== '' && LVAAS_Config::simple_restrict_available()
+			&& get_term_by( 'slug', $sr_slug, LVAAS_Config::SR_TAXONOMY ) ) {
+			update_user_meta( $user_id, LVAAS_Config::SR_META_PREFIX . $sr_slug, 'yes' );
+		}
+
 		wp_send_new_user_notifications( $user_id, 'both' );
 		return (int) $user_id;
 	}
