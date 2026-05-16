@@ -40,6 +40,7 @@ require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-prune-use
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-history.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-portal.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-auth-gate.php';
+require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-user-provisioning.php';
 
 function lvaas_membership_source(): User_Source_Interface {
 	static $instance = null;
@@ -50,6 +51,7 @@ function lvaas_membership_source(): User_Source_Interface {
 }
 
 ( new LVAAS_Auth_Gate() )->register();
+( new LVAAS_User_Provisioning() )->register();
 
 if ( is_admin() ) {
 	( new LVAAS_Admin_Portal() )->register();

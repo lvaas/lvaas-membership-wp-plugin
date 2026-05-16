@@ -303,7 +303,6 @@ final class LVAAS_Admin_Add_Users {
 			$by_email[ LVAAS_Member::normalize_email( $m->email ) ] = $m;
 		}
 
-		$role     = LVAAS_Config::get_provisioned_role();
 		$created  = array();
 		$skipped  = array();
 		$failures = array();
@@ -318,7 +317,7 @@ final class LVAAS_Admin_Add_Users {
 				continue;
 			}
 			$m       = $by_email[ $email ];
-			$user_id = $this->create_one( $m, $role );
+			$user_id = $this->create_one( $m );
 			if ( is_wp_error( $user_id ) ) {
 				$failures[] = $email . ' — ' . $user_id->get_error_message();
 				continue;
@@ -345,7 +344,7 @@ final class LVAAS_Admin_Add_Users {
 	/**
 	 * @return int|WP_Error new user ID or error
 	 */
-	private function create_one( LVAAS_Member $m, string $role ) {
+	private function create_one( LVAAS_Member $m ) {
 		$base = sanitize_user( $m->username !== '' ? $m->username : $m->email, true );
 		if ( $base === '' ) {
 			return new WP_Error( 'lvaas_no_username', __( 'Could not derive a valid username.', 'lvaas-membership' ) );
@@ -360,21 +359,9 @@ final class LVAAS_Admin_Add_Users {
 		if ( is_wp_error( $user_id ) ) {
 			return $user_id;
 		}
-		wp_update_user( array(
-			'ID'           => $user_id,
-			'first_name'   => $m->first,
-			'last_name'    => $m->last,
-			'display_name' => trim( $m->first . ' ' . $m->last ) !== '' ? trim( $m->first . ' ' . $m->last ) : $login,
-			'role'         => $role,
-		) );
-		update_user_meta( $user_id, LVAAS_MEMBERSHIP_USER_META_EMAIL, $m->email );
-
-		$sr_slug = LVAAS_Config::get_simple_restrict_permission();
-		if ( $sr_slug !== '' && LVAAS_Config::simple_restrict_available()
-			&& get_term_by( 'slug', $sr_slug, LVAAS_Config::SR_TAXONOMY ) ) {
-			update_user_meta( $user_id, LVAAS_Config::SR_META_PREFIX . $sr_slug, 'yes' );
-		}
-
+		// The user_register action (handled by LVAAS_User_Provisioning) has
+		// already applied role, names, lvaas_email meta, and any configured
+		// Simple Restrict permission grant.
 		wp_send_new_user_notifications( $user_id, 'both' );
 		return (int) $user_id;
 	}
