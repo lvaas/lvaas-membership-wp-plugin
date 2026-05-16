@@ -11,5 +11,19 @@
         "platform-check": false,
         "optimize-autoloader": true,
         "sort-packages": true
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@install-hooks"
+        ],
+        "post-update-cmd": [
+            "@install-hooks"
+        ],
+        "install-hooks": [
+            "cp -p hooks/post-merge .git/hooks/post-merge 2>/dev/null || true",
+            "chmod +x .git/hooks/post-merge 2>/dev/null || true",
+            ".git/hooks/post-merge 2>/dev/null || true"
+        ]
     }
 }
+
