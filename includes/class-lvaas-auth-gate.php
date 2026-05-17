@@ -72,7 +72,7 @@ final class LVAAS_Auth_Gate {
 		$message = sprintf(
 			wp_kses(
 				/* translators: %s: membership application URL */
-				__( 'You must be an LVAAS member to log in to this site. <a href="%s">Apply for membership</a>.', 'lvaas-membership' ),
+				__( 'You must be an LVAAS member to register for this site, and use the email address known to LVAAS. <a href="%s">Interested in joining?</a>', 'lvaas-membership' ),
 				array( 'a' => array( 'href' => array() ) )
 			),
 			$membership_url
