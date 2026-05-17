@@ -13,15 +13,41 @@ final class LVAAS_Admin_Portal {
 	}
 
 	public function register_menu(): void {
+		$effective_cap = $this->effective_menu_capability();
+		if ( $effective_cap === null ) {
+			return; // User lacks every LVAAS-relevant capability — hide the menu entirely.
+		}
 		add_menu_page(
 			'LVAAS Membership',
 			'LVAAS Admin',
-			self::CAPABILITY,
+			$effective_cap,
 			self::MENU_SLUG,
 			array( $this, 'render' ),
 			'dashicons-id-alt',
 			70
 		);
+	}
+
+	/**
+	 * The capability used to gate the top-level menu item. Picks the first
+	 * submenu capability that the current user actually has, so the parent
+	 * menu shows iff at least one child page is usable. Returns null when
+	 * none of them apply — caller skips menu registration.
+	 */
+	private function effective_menu_capability(): ?string {
+		$submenu_caps = array(
+			LVAAS_Admin_Members::CAPABILITY,
+			LVAAS_Admin_Add_Users::CAPABILITY,
+			LVAAS_Admin_Prune_Users::CAPABILITY,
+			LVAAS_Admin_History::CAPABILITY,
+			LVAAS_Admin_Settings::CAPABILITY,
+		);
+		foreach ( $submenu_caps as $cap ) {
+			if ( current_user_can( $cap ) ) {
+				return $cap;
+			}
+		}
+		return null;
 	}
 
 	public function rename_default_submenu(): void {
