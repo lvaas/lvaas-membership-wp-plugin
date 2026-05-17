@@ -8,6 +8,7 @@ final class LVAAS_Audit_Log {
 	public const MAX_ENTRIES = 1000;
 
 	public const ACTION_ADD          = 'add';
+	public const ACTION_INVITE       = 'invite';
 	public const ACTION_PRUNE_REVOKE = 'prune_revoke';
 	public const ACTION_PRUNE_DELETE = 'prune_delete';
 
@@ -31,6 +32,26 @@ final class LVAAS_Audit_Log {
 		update_option( self::OPT_KEY, $log, false );
 	}
 
+	/**
+	 * Append an ACTION_INVITE entry. Invitees have no WP user ID yet,
+	 * so the affected list is recorded as email strings.
+	 *
+	 * @param string[] $emails
+	 */
+	public static function append_invites( array $emails ): void {
+		$log = (array) get_option( self::OPT_KEY, array() );
+		array_unshift( $log, array(
+			'timestamp' => time(),
+			'actor_id'  => get_current_user_id(),
+			'action'    => self::ACTION_INVITE,
+			'affected'  => array_values( array_filter( array_map( 'sanitize_email', $emails ) ) ),
+		) );
+		if ( count( $log ) > self::MAX_ENTRIES ) {
+			$log = array_slice( $log, 0, self::MAX_ENTRIES );
+		}
+		update_option( self::OPT_KEY, $log, false );
+	}
+
 	/** @return array<int, array{timestamp:int, actor_id:int, action:string, affected:int[]}> */
 	public static function entries( int $limit = 100 ): array {
 		$log = (array) get_option( self::OPT_KEY, array() );
@@ -40,6 +61,7 @@ final class LVAAS_Audit_Log {
 	public static function action_label( string $action ): string {
 		switch ( $action ) {
 			case self::ACTION_ADD:          return __( 'Add users', 'lvaas-membership' );
+			case self::ACTION_INVITE:       return __( 'Invite (email only)', 'lvaas-membership' );
 			case self::ACTION_PRUNE_REVOKE: return __( 'Prune (revoke)', 'lvaas-membership' );
 			case self::ACTION_PRUNE_DELETE: return __( 'Prune (delete)', 'lvaas-membership' );
 		}

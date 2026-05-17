@@ -36,6 +36,7 @@ require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-audit-log.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-settings.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-members.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-add-users.php';
+require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-invite-users.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-prune-users.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-history.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-portal.php';
@@ -57,6 +58,7 @@ if ( is_admin() ) {
 	( new LVAAS_Admin_Portal() )->register();
 	( new LVAAS_Admin_Members() )->register();
 	( new LVAAS_Admin_Add_Users() )->register();
+	( new LVAAS_Admin_Invite_Users() )->register();
 	( new LVAAS_Admin_Prune_Users() )->register();
 	( new LVAAS_Admin_History() )->register();
 	( new LVAAS_Admin_Settings() )->register();

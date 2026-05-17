@@ -72,14 +72,18 @@ final class LVAAS_Admin_History {
 		<?php
 	}
 
-	private function format_affected( array $ids ): string {
+	private function format_affected( array $items ): string {
 		$out = array();
-		foreach ( $ids as $id ) {
-			$u = get_user_by( 'id', (int) $id );
+		foreach ( $items as $item ) {
+			if ( is_string( $item ) ) {
+				$out[] = $item;
+				continue;
+			}
+			$u = get_user_by( 'id', (int) $item );
 			if ( $u ) {
 				$out[] = $u->user_login;
 			} else {
-				$out[] = '#' . (int) $id . ' [gone]';
+				$out[] = '#' . (int) $item . ' [gone]';
 			}
 		}
 		return implode( ', ', $out );

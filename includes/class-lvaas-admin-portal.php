@@ -38,6 +38,7 @@ final class LVAAS_Admin_Portal {
 		$submenu_caps = array(
 			LVAAS_Admin_Members::CAPABILITY,
 			LVAAS_Admin_Add_Users::CAPABILITY,
+			LVAAS_Admin_Invite_Users::CAPABILITY,
 			LVAAS_Admin_Prune_Users::CAPABILITY,
 			LVAAS_Admin_History::CAPABILITY,
 			LVAAS_Admin_Settings::CAPABILITY,
@@ -74,6 +75,12 @@ final class LVAAS_Admin_Portal {
 				'cap'   => LVAAS_Admin_Add_Users::CAPABILITY,
 				'title' => __( 'Add LVAAS Users', 'lvaas-membership' ),
 				'desc'  => __( 'Provision WP accounts for LVAAS members not yet in WP and send invitation emails.', 'lvaas-membership' ),
+			),
+			array(
+				'slug'  => LVAAS_Admin_Invite_Users::PAGE_SLUG,
+				'cap'   => LVAAS_Admin_Invite_Users::CAPABILITY,
+				'title' => __( 'Invite Users', 'lvaas-membership' ),
+				'desc'  => __( 'Send an invitation email to selected LVAAS members without creating WP accounts.', 'lvaas-membership' ),
 			),
 			array(
 				'slug'  => LVAAS_Admin_Prune_Users::PAGE_SLUG,
