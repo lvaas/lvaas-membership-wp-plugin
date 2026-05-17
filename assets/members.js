@@ -2,7 +2,7 @@
 	'use strict';
 
 	var DATA = (window.LVAASMembers && window.LVAASMembers.rows) || [];
-	var COLUMNS = ['last', 'first', 'email', 'lvaas_email', 'phone', 'status'];
+	var COLUMNS = ['last', 'first', 'email', 'phone', 'status'];
 
 	var state = { sortKey: 'last', sortDir: 1, filter: '' };
 
@@ -59,11 +59,13 @@
 			var html = '';
 			for (var i = 0; i < rows.length; i++) {
 				var r = rows[i];
-				var cells = '';
-				for (var c = 0; c < COLUMNS.length; c++) {
-					cells += '<td>' + esc(r[COLUMNS[c]]) + '</td>';
-				}
-				html += '<tr>' + cells + '</tr>';
+				html += '<tr>' +
+					'<td>' + esc(r.last)   + '</td>' +
+					'<td>' + esc(r.first)  + '</td>' +
+					'<td>' + esc(r.email)  + '</td>' +
+					'<td>' + esc(r.phone)  + '</td>' +
+					'<td>' + esc(r.status) + '</td>' +
+				'</tr>';
 			}
 			tbody.innerHTML = html;
 		}
