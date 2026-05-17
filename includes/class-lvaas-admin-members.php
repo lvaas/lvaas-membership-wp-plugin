@@ -29,13 +29,11 @@ final class LVAAS_Admin_Members {
 		if ( strpos( $hook_suffix, self::PAGE_SLUG ) === false ) {
 			return;
 		}
-		$asset_path = LVAAS_MEMBERSHIP_PLUGIN_DIR . 'assets/members.js';
-		$version    = file_exists( $asset_path ) ? (string) filemtime( $asset_path ) : LVAAS_MEMBERSHIP_VERSION;
 		wp_enqueue_script(
 			self::SCRIPT_HANDLE,
 			LVAAS_MEMBERSHIP_PLUGIN_URL . 'assets/members.js',
 			array(),
-			$version,
+			LVAAS_MEMBERSHIP_VERSION,
 			true
 		);
 	}
