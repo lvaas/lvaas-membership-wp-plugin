@@ -15,7 +15,7 @@ final class LVAAS_Admin_Portal {
 	public function register_menu(): void {
 		add_menu_page(
 			'LVAAS Membership',
-			'LVAAS',
+			'LVAAS Admin',
 			self::CAPABILITY,
 			self::MENU_SLUG,
 			array( $this, 'render' ),
