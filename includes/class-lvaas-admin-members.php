@@ -47,13 +47,27 @@ final class LVAAS_Admin_Members {
 		$error = null;
 		try {
 			$members = lvaas_membership_source()->get_members();
+
+			// One pass over WP users to build a current-email -> ID map for the join below.
+			$wp_uid_by_email = array();
+			foreach ( get_users( array( 'fields' => array( 'ID', 'user_email' ) ) ) as $wpu ) {
+				$key = LVAAS_Member::normalize_email( (string) $wpu->user_email );
+				if ( $key !== '' ) {
+					$wp_uid_by_email[ $key ] = (int) $wpu->ID;
+				}
+			}
+
 			foreach ( $members as $m ) {
+				$key  = LVAAS_Member::normalize_email( $m->email );
+				$uid  = $wp_uid_by_email[ $key ] ?? 0;
+				$meta = $uid > 0 ? (string) get_user_meta( $uid, LVAAS_MEMBERSHIP_USER_META_EMAIL, true ) : '';
 				$rows[] = array(
-					'last'   => $m->last,
-					'first'  => $m->first,
-					'email'  => $m->email,
-					'phone'  => $m->phone,
-					'status' => $m->status_label(),
+					'last'        => $m->last,
+					'first'       => $m->first,
+					'email'       => $m->email,
+					'lvaas_email' => $meta,
+					'phone'       => $m->phone,
+					'status'      => $m->status_label(),
 				);
 			}
 		} catch ( \Throwable $e ) {
@@ -153,11 +167,12 @@ final class LVAAS_Admin_Members {
 			<table class="wp-list-table widefat striped">
 				<thead>
 					<tr>
-						<th data-key="last"><?php   esc_html_e( 'Last',   'lvaas-membership' ); ?></th>
-						<th data-key="first"><?php  esc_html_e( 'First',  'lvaas-membership' ); ?></th>
-						<th data-key="email"><?php  esc_html_e( 'Email',  'lvaas-membership' ); ?></th>
-						<th data-key="phone"><?php  esc_html_e( 'Phone',  'lvaas-membership' ); ?></th>
-						<th data-key="status"><?php esc_html_e( 'Status', 'lvaas-membership' ); ?></th>
+						<th data-key="last"><?php        esc_html_e( 'Last',         'lvaas-membership' ); ?></th>
+						<th data-key="first"><?php       esc_html_e( 'First',        'lvaas-membership' ); ?></th>
+						<th data-key="email"><?php       esc_html_e( 'Email',        'lvaas-membership' ); ?></th>
+						<th data-key="lvaas_email"><code>lvaas_email</code></th>
+						<th data-key="phone"><?php       esc_html_e( 'Phone',        'lvaas-membership' ); ?></th>
+						<th data-key="status"><?php      esc_html_e( 'Status',       'lvaas-membership' ); ?></th>
 					</tr>
 				</thead>
 				<tbody id="lvaas-members-tbody"></tbody>
