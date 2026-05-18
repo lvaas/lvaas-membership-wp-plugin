@@ -20,7 +20,7 @@ define( 'LVAAS_MEMBERSHIP_VERSION', '0.1.0' );
 define( 'LVAAS_MEMBERSHIP_PLUGIN_FILE', __FILE__ );
 define( 'LVAAS_MEMBERSHIP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LVAAS_MEMBERSHIP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'LVAAS_MEMBERSHIP_MENU_SLUG', 'lvaas-membership' );
+define( 'LVAAS_MEMBERSHIP_MENU_SLUG', 'lvaas-members' );
 define( 'LVAAS_MEMBERSHIP_USER_META_EMAIL', 'lvaas_email' );
 
 if ( is_readable( LVAAS_MEMBERSHIP_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
@@ -39,7 +39,6 @@ require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-add-users
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-invite-users.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-prune-users.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-history.php';
-require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-admin-portal.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-auth-gate.php';
 require_once LVAAS_MEMBERSHIP_PLUGIN_DIR . 'includes/class-lvaas-user-provisioning.php';
 
@@ -55,7 +54,6 @@ function lvaas_membership_source(): User_Source_Interface {
 ( new LVAAS_User_Provisioning() )->register();
 
 if ( is_admin() ) {
-	( new LVAAS_Admin_Portal() )->register();
 	( new LVAAS_Admin_Members() )->register();
 	( new LVAAS_Admin_Add_Users() )->register();
 	( new LVAAS_Admin_Invite_Users() )->register();
