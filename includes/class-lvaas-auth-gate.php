@@ -72,8 +72,10 @@ final class LVAAS_Auth_Gate {
 		$message = sprintf(
 			wp_kses(
 				/* translators: %s: membership application URL */
-				__( 'You must be an LVAAS member to register for this site, and use the email address known to LVAAS. <a href="%s">Interested in joining?</a>', 'lvaas-membership' ),
-				array( 'a' => array( 'href' => array() ) )
+				__( '<strong>Error:</strong>
+				That email address is not recognized.
+				You must be an LVAAS member to register for this site, and use the email address known to LVAAS. <a href="%s">Interested in joining?</a>', 'lvaas-membership' ),
+				array( 'a' => array( 'href' => array() ), 'strong' => array() )
 			),
 			$membership_url
 		);
