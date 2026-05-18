@@ -9,10 +9,18 @@ A WordPress plugin that manages user access using an external membership databas
 - WordPress ≥ 6.0
 - PHP ≥ 8.0 with the `openssl` extension
 - [Composer](https://getcomposer.org/)
+-- also see [Dreamhost Composer installation](https://help.dreamhost.com/hc/en-us/articles/214899037-Installing-Composer-overview)
 - A Google Cloud project with the **Google Sheets API** enabled
 - A **Service Account** JSON key for that project
 - A Google Sheet shared with the service account's email (read access). The plugin reads the `members` tab. Required column headers (exact, case-sensitive, any order): `last`, `first`, `email`, `mbr_type`, `mbr_cat`, `codes`, `phone`, `username`. See [`docs/spec.md`](docs/spec.md) for the full data model.
 - WordPress salts defined in `wp-config.php` (`AUTH_KEY` and `SECURE_AUTH_KEY`) — used to derive the at-rest encryption key for the stored service-account JSON.
+
+### Wordpress plugins
+- [Members – Membership & User Role Editor Plugin](https://wordpress.org/plugins/members/)
+-- facilitates creating and assigning roles for viewing and administering membershiip
+- [Simple Restrict](https://wordpress.org/plugins/simple-restrict/)
+-- optional
+-- if activated, this plugin will allow one Simple Restrict Permission to be assigned to new users
 
 ### Install
 
