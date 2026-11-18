@@ -16,6 +16,7 @@ A WordPress plugin to manage user access based on an external membership databas
       * ‘R’ → empty  
       * ‘L’ → (Life)  
       * ‘H’ → (Honorary)  
+      * ‘S’ → (Sustaining)  
       * ‘U’ → (Student)  
       * ‘J’ → (Junior)  
       * ‘F1’, ‘F2’, ‘FD’, ‘FJ’ → (Family)   
@@ -56,7 +57,7 @@ A WordPress plugin to manage user access based on an external membership databas
   * `first`  
   * `last`  
   * `mbr_cat`  
-    * Valid member values: ‘R’, ‘L’, ‘H’, ‘U’, ‘J’, ‘F1’, ‘F2’, ‘FD’, ‘FJ’.  
+    * Valid member values: ‘R’, ‘L’, ‘H’, ‘S’, ‘U’, ‘J’, ‘F1’, ‘F2’, ‘FD’, ‘FJ’.  
     * ‘P’ is a recognized non-member value and silently excludes the row (intentional, not an error).  
     * Any other value excludes the row as invalid (see validation policy below).  
   * `mbr_type`  

@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class LVAAS_Member_Validator {
-	public const VALID_CAT   = array( 'R', 'L', 'H', 'U', 'J', 'F1', 'F2', 'FD', 'FJ' );
+	public const VALID_CAT   = array( 'R', 'L', 'H', 'S', 'U', 'J', 'F1', 'F2', 'FD', 'FJ' );
 	public const SILENT_CAT  = array( 'P' );
 	public const VALID_TYPE  = array( 'Full', 'Assoc' );
 	public const SILENT_TYPE = array( 'Prospect' );

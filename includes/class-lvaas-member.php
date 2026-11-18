@@ -20,6 +20,7 @@ final class LVAAS_Member {
 			'R'  => '',
 			'L'  => '(Life)',
 			'H'  => '(Honorary)',
+			'S'  => '(Sustaining)',
 			'U'  => '(Student)',
 			'J'  => '(Junior)',
 			'F1' => '(Family)',
